@@ -1,0 +1,13 @@
+{
+  "name": "online-arbitrage-platform",
+  "version": "1.0.0",
+  "engines": {
+    "node": "20"
+  },
+  "scripts": {
+    "start": "npx serve -l 8080 ."
+  },
+  "dependencies": {
+    "serve": "^14.2.0"
+  }
+}
