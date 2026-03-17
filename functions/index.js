@@ -1,13 +1,13 @@
 const functions = require("firebase-functions");
 const { ApifyClient } = require('apify-client');
-const cors = require("cors")({ origin: true }); // This line allows the connection
+const cors = require("cors")({ origin: true }); // Allows your website to connect
 
 const client = new ApifyClient({
     token: process.env.APIFY_TOKEN 
 });
 
 exports.triggerApifyScraper = functions.https.onRequest((req, res) => {
-    // Wrap your entire logic in the 'cors' function
+    // This wrapper is what fixes the "Could not connect" error
     return cors(req, res, async () => {
         try {
             const { asinList } = req.body;
@@ -18,9 +18,8 @@ exports.triggerApifyScraper = functions.https.onRequest((req, res) => {
             
             res.status(200).send({ success: true, data: items });
         } catch (error) {
-            console.error(error);
+            console.error("Backend Error:", error);
             res.status(500).send({ success: false, error: error.message });
         }
     });
-})
-    ;
+});
