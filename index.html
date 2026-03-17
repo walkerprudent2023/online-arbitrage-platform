@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Online Arbitrage Platform</title>
+<script src="https://cdn.jsdelivr.net"></script>
+<style>
+body { font-family: Arial, sans-serif; margin:0; background:#f4f4f4; padding: 20px; }
+header { background:#222; color:#fff; padding:10px; text-align:center; }
+section { background: white; padding: 20px; border-radius: 8px; margin-top: 20px; }
+textarea { width: 100%; max-width: 500px; padding: 10px; margin: 10px 0; border: 1px solid #ccc; }
+button { background: #ff9900; color: white; padding: 12px 20px; border: none; cursor: pointer; border-radius: 4px; font-weight: bold; }
+button:hover { background: #e68a00; }
+table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+th, td { border: 1px solid #ddd; padding: 12px; text-align: left; }
+th { background-color: #f2f2f2; }
+</style>
+</head>
+<body>
+
+<header><h1>Arbitrage Dashboard</h1></header>
+
+<section id="asinManagement">
+  <h2>Bulk ASIN Input</h2>
+  <p>Paste ASINs below (one per line) to start the Apify scraper.</p>
+  <textarea id="bulkAsin" rows="8" placeholder="B00X4WHP5E&#10;B07PQ9W6N7"></textarea><br>
+  <button id="startScanBtn">Start Secure Scraper</button>
+</section>
+
+<section id="results">
+  <h2>Scraper Results</h2>
+  <table id="inventoryTable">
+    <thead>
+      <tr>
+        <th>Product Name</th>
+        <th>Price</th>
+        <th>Status</th>
+      </tr>
+    </thead>
+    <tbody>
+      <!-- Data from Apify will appear here -->
+    </tbody>
+  </table>
+</section>
+
+<script>
+// --- CONFIGURATION ---
+// IMPORTANT: Replace this with your actual Firebase Function URL once deployed
+const FIREBASE_MIDDLEMAN_URL = "YOUR_FIREBASE_MIDDLEMAN_URL"; 
+
+// --- Trigger Scraper ---
+async function startApifyScan() {
+  const asinInput = document.getElementById('bulkAsin').value;
+  const asinList = asinInput.split('\n').map(a => a.trim()).filter(Boolean);
+
+  if (asinList.length === 0) {
+    alert("Please enter at least one ASIN.");
+    return;
+  }
+
+  const btn = document.getElementById('startScanBtn');
+  btn.innerText = "Scanning... Please wait";
+  btn.disabled = true;
+
+  try {
+    // Calling your Firebase Middleman (which holds your Apify Key safely)
+    const response = await fetch(FIREBASE_MIDDLEMAN_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ asinList: asinList })
+    });
+
+    const result = await response.json();
+
+    if (result.success) {
+      updateTable(result.data);
+      alert("Scan complete! Check the table below.");
+    } else {
+      alert("Error from Middleman: " + result.error);
+    }
+  } catch (error) {
+    console.error("Connection error:", error);
+    alert("Could not connect to the backend. Make sure your Firebase Function is deployed.");
+  } finally {
+    btn.innerText = "Start Secure Scraper";
+    btn.disabled = false;
+  }
+}
+
+// --- Update Table with Data ---
+function updateTable(items) {
+  const tbody = document.querySelector('#inventoryTable tbody');
+  tbody.innerHTML = ''; // Clear old data
+
+  items.forEach(item => {
+    const row = document.createElement('tr');
+    row.innerHTML = `
+      <td>${item.title || 'N/A'}</td>
+      <td>$${item.price || 'N/A'}</td>
+      <td><span style="color:green">Fetched</span></td>
+    `;
+    tbody.appendChild(row);
+  });
+}
+
+// --- Bind Button ---
+document.getElementById('startScanBtn').addEventListener('click', startApifyScan);
+</script>
+
+</
+  body>
+</html>
