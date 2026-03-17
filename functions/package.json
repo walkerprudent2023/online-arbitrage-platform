@@ -1,0 +1,14 @@
+{
+  "name": "functions",
+  "description": "Cloud Functions for Firebase",
+  "dependencies": {
+    "firebase-functions": "^4.0.0",
+    "firebase-admin": "^11.0.0",
+    "apify-client": "^2.7.0",
+    "cors": "^2.8.5"
+  },
+  "engines": {
+    "node": "20"
+  },
+  "private": true
+}
